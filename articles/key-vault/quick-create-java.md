@@ -39,13 +39,30 @@ Azure Key Vault helps safeguard cryptographic keys and secrets used by cloud app
 
 In a terminal, use the `mvn` command to create a new Java console app with the name `akv-java`.
 
+Windows
+
 ```console
+
+mvn archetype:generate -DgroupId=com.keyvault.quickstart ^
+                       -DartifactId=akv-java ^
+                       -DarchetypeArtifactId=maven-archetype-quickstart ^
+                       -DarchetypeVersion=1.4 ^
+                       -Dversion=0.1.0 ^
+                       -DinteractiveMode=false
+
+```
+
+Bash
+
+```bash
+
 mvn archetype:generate -DgroupId=com.keyvault.quickstart \
                        -DartifactId=akv-java \
                        -DarchetypeArtifactId=maven-archetype-quickstart \
                        -DarchetypeVersion=1.4 \
                        -Dversion=0.1.0 \
                        -DinteractiveMode=false
+
 ```
 
 The output from generating the project will look something like this:
@@ -93,7 +110,7 @@ cd akv-java
 
 Open the *pom.xml* file in [Visual Studio Code](https://code.visualstudio.com/Download) (or your favorite text editor). Add the following dependency elements to the group of dependencies.
 
-> Note that the slf4j-nop prevents warning messages and isn't part of the solution.
+> Note that the slf4j-nop prevents warning messages and isn't part of the solution
 
 ```xml
 
@@ -119,10 +136,11 @@ Open the *pom.xml* file in [Visual Studio Code](https://code.visualstudio.com/Do
 
 ### Create a resource group and key vault
 
-This quickstart includes basic commands to create an Azure key vault. More detailed instructions are available at [Azure CLI quickstart](quick-create-cli.md), [Azure PowerShell quickstart](quick-create-powershell.md), or [Azure portal quickstart](quick-create-portal.md).
+This quickstart includes basic commands to create an Azure key vault. More detailed instructions are available at [Azure CLI quickstart](quick-create-cli.md), [Azure PowerShell quickstart](quick-create-powershell.md), or [Azure portal quickstart](quick-create-portal.md)
 
 > [!Important]
 > Each key vault must have a unique name. Replace `your-unique-keyvault-name` with the name of your key vault in the following examples.
+>
 > If you get an error on the az keyvault create command, change the environment variable value and try again.
 
 Windows Command Prompt Commands
@@ -177,9 +195,11 @@ az keyvault secret show --vault-name $jqs_KeyVaultName --name mySecret
 
 ## Code excerpts
 
-The Azure Key Vault client library for Java allows you to manage keys and related assets such as certificates and secrets. The code excerpts below will show you how to read the secret we set earlier as well as set, read and delete a new secret.
+The Azure Key Vault client library for Java allows you to manage secrets and related assets such as keys and certificates.
 
-The entire console app is [below](#sample-code).
+The code excerpts below will show you how to read the secret we set earlier as well as set, read and delete a new secret.
+
+> The entire console app is [below](#sample-code)
 
 ### Add directives
 
@@ -199,11 +219,14 @@ import com.microsoft.azure.keyvault.requests.*;
 The most secure way to authenticate a cloud-based application is with a managed identity; see [Use an App Service managed identity to access Azure Key Vault](managed-identity.md) for more details.
 
 > This quickstart supports using a Managed Identity or using the Azure CLI cached credentials to access Azure Key Vault securely
+>
 > Once Managed Identity is setup and functioning, set the `jqs_AuthType` environment variable to `MSI` to use Managed Identity
 
 ### Authenticate and create a client
 
-Authenticating to your key vault and creating a key vault client depends on the `jqs_KeyVaultName` environment variable set in the [initial setup](#Create-a-resource-group-and-key-vault) above. The name of your key vault is expanded to the key vault URL, in the format `https://<your-key-vault-name>.vault.azure.net`.
+Authenticating to your key vault and creating a key vault client depends on the `jqs_KeyVaultName` environment variable set in the [initial setup](#Create-a-resource-group-and-key-vault) above.
+
+> The name of your key vault is expanded to the key vault URL, in the format `https://<your-key-vault-name>.vault.azure.net`
 
 ```java
 
@@ -271,22 +294,11 @@ System.out.println(secret == null);
 
 ```
 
-## Delete Key Vault and Resource Group
+## Running the code
 
-When no longer needed, you can use the Azure CLI to remove your key vault and the corresponding resource group.
+Open src/main/java/com/keyvault/quickstart/App.java with VS Code and replace all contents with the code below.
 
-> Make sure there are no resources in the Resource Group you want to retain as they will be deleted!
-
-```console
-
-### Make sure there is nothing else in the resource group as it will be deleted
-az group delete -g $jqs_ResourceGroup
-
-```
-
-## Sample code
-
-Open src/main/java/com/keyvault/quickstart/App.java with VS Code and replace all contents with the code below. Save and press F5 to run the code.
+> Save and press F5 to run the code
 
 ```java
 
@@ -368,6 +380,19 @@ public class App {
         System.exit(0);
     }
 }
+
+```
+
+## Delete Key Vault and Resource Group
+
+When no longer needed, you can use the Azure CLI to remove your key vault and the corresponding resource group.
+
+> **Make sure there are no resources in the Resource Group you want to retain as they will be deleted!**
+
+```console
+
+### Make sure there is nothing else in the resource group as it will be deleted
+az group delete -g $jqs_ResourceGroup
 
 ```
 

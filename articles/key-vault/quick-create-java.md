@@ -30,7 +30,7 @@ Azure Key Vault helps safeguard cryptographic keys and secrets used by cloud app
 - [Apache Maven](https://maven.apache.org)
 - [Azure CLI](/cli/azure/install-azure-cli?view=azure-cli-latest) or [Azure PowerShell](/powershell/azure/overview)
 
-This quickstart assumes you are running [Azure CLI](/cli/azure/install-azure-cli?view=azure-cli-latest) and [Apache Maven](https://maven.apache.org) in a Linux terminal window.
+This quickstart assumes you are running [Azure CLI](/cli/azure/install-azure-cli?view=azure-cli-latest), [Apache Maven](https://maven.apache.org) and bash in a Linux terminal window.
 
 ## Setting up
 
@@ -117,7 +117,7 @@ Create a service principle using the Azure CLI [az ad sp create-for-rbac](/cli/a
 az ad sp create-for-rbac -n "http://mySP" --sdk-auth
 ```
 
-This operation will return a series of key / value pairs. 
+This operation will return a series of key / value pairs.
 
 ```console
 {
@@ -146,7 +146,7 @@ az keyvault set-policy -n <your-unique-keyvault-name> --spn <clientId-of-your-se
 
 #### Set environmental variables
 
-The DefaultAzureCredential method in our application relies on three environmental variables: `AZURE_CLIENT_ID`, `AZURE_CLIENT_SECRET`, and `AZURE_TENANT_ID`. use set these variables to the clientId, clientSecret, and tenantId values you noted in the [Create a service principal](#create-a-service-principal) step, above. Use the `export VARNAME=VALUE` format to set your environmental variables. (This method only sets the variables for your current shell and processes created from the shell; to permanently add these variables to your environment, edit your `/etc/environment ` file.) 
+The DefaultAzureCredential method in our application relies on three environmental variables: `AZURE_CLIENT_ID`, `AZURE_CLIENT_SECRET`, and `AZURE_TENANT_ID`. use set these variables to the clientId, clientSecret, and tenantId values you noted in the [Create a service principal](#create-a-service-principal) step, above. Use the `export VARNAME=VALUE` format to set your environmental variables. (This method only sets the variables for your current shell and processes created from the shell; to permanently add these variables to your environment, edit your `/etc/environment ` file.)
 
 You will also need to save your key vault name as an environment variable called `KEY_VAULT_NAME`.
 
@@ -196,7 +196,7 @@ SecretClient secretClient = new SecretClientBuilder()
 
 ### Save a secret
 
-Now that your application is authenticated, you can put a secret into your keyvault using the `secretClient.setSecret` method. This requires a name for the secret -- we've assigned the value "mySecret" to the `secretName` variable in this sample.  
+Now that your application is authenticated, you can put a secret into your keyvault using the `secretClient.setSecret` method. This requires a name for the secret -- we've assigned the value "mySecret" to the `secretName` variable in this sample.
 
 ```java
 secretClient.setSecret(new KeyVaultSecret(secretName, secretValue));
@@ -249,7 +249,7 @@ Remove-AzResourceGroup -Name "myResourceGroup"
 ```java
 package com.keyvault.quickstart;
 
-import java.io.Console;   
+import java.io.Console;
 
 import com.azure.identity.DefaultAzureCredentialBuilder;
 
@@ -272,7 +272,7 @@ public class App {
             .buildClient();
 
 
-        Console con = System.console();  
+        Console con = System.console();
 
         String secretName = "mySecret";
 

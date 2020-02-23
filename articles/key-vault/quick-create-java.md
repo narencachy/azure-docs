@@ -26,7 +26,7 @@ Azure Key Vault helps safeguard cryptographic keys and secrets used by cloud app
 ## Prerequisites
 
 - An Azure subscription - [create one for free](https://azure.microsoft.com/free/?WT.mc_id=A261C142F).
-- [Java Development Kit (JDK)](/java/azure/jdk/?view=azure-java-stable) version 8 or above
+- [Java Development Kit (JDK)](https://jdk.java.net/13/) version 13 or above
 - [Apache Maven](https://maven.apache.org)
 - [Azure CLI](/cli/azure/install-azure-cli?view=azure-cli-latest)
 - [Visual Studio Code](https://code.visualstudio.com/Download) (optional but recommended)

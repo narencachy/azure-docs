@@ -3,7 +3,7 @@ title: Quickstart -  Azure Key Vault client library for Java
 description: Provides format and content criteria for writing Quickstarts for Azure SDK client libraries.
 author: msmbaldwin
 ms.author: mbaldwin
-ms.date: 10/20/2019
+ms.date: 02/25/2020
 ms.service: key-vault
 ms.topic: quickstart
 

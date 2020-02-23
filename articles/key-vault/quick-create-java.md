@@ -125,7 +125,7 @@ This quickstart includes basic commands to create an Azure key vault. More detai
 
 Windows Command Prompt Commands
 
-```batch
+```powershell
 
 # your keyvault name must be unique
 set jqs_KeyVaultName=your-unique-keyvault-name
@@ -173,9 +173,9 @@ az keyvault secret show --vault-name $jqs_KeyVaultName --name mySecret
 
 ```
 
-## Code examples
+## Code excerpts
 
-The Azure Key Vault client library for Java allows you to manage keys and related assets such as certificates and secrets. The code samples below will show you how to read the secret we set earlier as well as create, read and delete a new secret.
+The Azure Key Vault client library for Java allows you to manage keys and related assets such as certificates and secrets. The code excerpts below will show you how to read the secret we set earlier as well as set, read and delete a new secret.
 
 The entire console app is [below](#sample-code).
 
@@ -194,15 +194,14 @@ import com.microsoft.azure.keyvault.requests.*;
 
 ### Access Key Vault securely
 
-The most secure way to authenticate a cloud-based application is with a managed identity; see [Use an App Service managed identity to access Azure Key Vault](managed-identity.md) for details.
+The most secure way to authenticate a cloud-based application is with a managed identity; see [Use an App Service managed identity to access Azure Key Vault](managed-identity.md) for more details.
 
-> This quickstart supports using a Managed Identity or using the Azure CLI cached credentials to access Azure Key Vault securely.
-
-Once Managed Identity is setup and functioning, set the `jqs_AuthType` environment variable to `MSI` to use Managed Identity.
+> This quickstart supports using a Managed Identity or using the Azure CLI cached credentials to access Azure Key Vault securely
+> Once Managed Identity is setup and functioning, set the `jqs_AuthType` environment variable to `MSI` to use Managed Identity
 
 ### Authenticate and create a client
 
-Authenticating to your key vault and creating a key vault client depends on the `jqs_KeyVaultName` environment variable set in the [Create a resource group and key vault](#Create-a-resource-group-and-key-vault) step above. The name of your key vault is expanded to the key vault URL, in the format `https://<your-key-vault-name>.vault.azure.net`.
+Authenticating to your key vault and creating a key vault client depends on the `jqs_KeyVaultName` environment variable set in the [initial setup](#Create-a-resource-group-and-key-vault) above. The name of your key vault is expanded to the key vault URL, in the format `https://<your-key-vault-name>.vault.azure.net`.
 
 ```java
 
@@ -213,7 +212,7 @@ String kvUri = "https://" + keyVaultName.trim() + ".vault.azure.net";
 AzureTokenCredentials cred = null;
 
 // check for jqs_AuthType env var
-String isMsi = System.getenv("MSI");
+String isMsi = System.getenv("jqs_AuthType");
 if (isMsi != null && isMsi.equals("MSI")) {
     // use Managed Identity
     cred = new MSICredentials(AzureEnvironment.AZURE);
@@ -285,15 +284,94 @@ az group delete -g $jqs_ResourceGroup
 
 ## Sample code
 
+Open src/main/java/com/keyvault/quickstart/App.java with VS Code and replace all contents with the code below. Save and press F5 to run the code.
+
 ```java
 
-// TODO - insert code here
+package com.keyvault.quickstart;
+
+import com.microsoft.azure.AzureEnvironment;
+import com.microsoft.azure.credentials.*;
+import com.microsoft.azure.keyvault.*;
+import com.microsoft.azure.keyvault.models.*;
+import com.microsoft.azure.keyvault.requests.*;
+
+public class App {
+    public static void main(String[] args) throws InterruptedException, IllegalArgumentException {
+
+        String keyVaultName = System.getenv("jqs_KeyVaultName");
+
+        if (keyVaultName == null || keyVaultName.isBlank()) {
+            System.out.println("Set the jqs_KeyVaultName environment variable");
+            System.exit(-1);
+        }
+
+        // build key vault URL
+        String kvUrl = "https://" + keyVaultName.trim() + ".vault.azure.net";
+        System.out.println(kvUrl);
+
+        try {
+            AzureTokenCredentials cred = null;
+
+            // check for jqs_AuthType env var
+            String isMsi = System.getenv("jqs_AuthType");
+            if (isMsi != null && isMsi.equals("MSI")) {
+                // use Managed Identity
+                cred = new MSICredentials(AzureEnvironment.AZURE);
+            } else {
+                // use Azure CLI cache
+                cred = AzureCliCredentials.create();
+            }
+
+            // can't continue
+            if (cred == null || cred.domain() == null){
+                System.out.println("Unable to get credentials");
+                System.exit(-1);
+            }
+            System.out.println(cred.domain());
+
+            // create Key Vault client
+            KeyVaultClient kvClient = new KeyVaultClient(cred);
+
+            // get mySecret
+            // this will fail without proper permissions so make sure to check results
+            SecretBundle secret = kvClient.getSecret(kvUrl, "mySecret");
+            System.out.println(secret.value());
+
+            // create myNewSecret
+            // this will fail without proper permissions so make sure to check results
+            SetSecretRequest req = new SetSecretRequest.Builder(kvUrl, "myNewSecret", "My new secret value").build();
+            secret = kvClient.setSecret(req);
+            System.out.println(secret.id());
+
+            // get myNewSecret
+            // this will fail without proper permissions so make sure to check results
+            secret = kvClient.getSecret(kvUrl, "myNewSecret");
+            System.out.println(secret.value());
+
+            // delete myNewSecret
+            // this will fail without proper permissions so make sure to check results
+            secret = kvClient.deleteSecret(kvUrl, "myNewSecret");
+            System.out.println(secret.id());
+
+            // myNewSecret should be null
+            secret = kvClient.getSecret(kvUrl, "myNewSecret");
+            System.out.println(secret == null);
+
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+        }
+
+        // keeps mvn exec:java from waiting for ctl-c
+        System.exit(0);
+    }
+}
 
 ```
 
 ## Next steps
 
-In this quickstart you created a key vault, set a secret and retrieved that secret. To learn more about Key Vault and how to integrate it with your applications, continue on to the articles below.
+In this quickstart you created a key vault, set a secret, retrieved secrets and deleted a secret. To learn more about Key Vault and how to integrate it with your applications, continue on to the articles below.
 
 - Read an [Overview of Azure Key Vault](key-vault-overview.md)
 - See the [Azure Key Vault developer's guide](key-vault-developers-guide.md)

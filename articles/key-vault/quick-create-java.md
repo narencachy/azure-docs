@@ -216,7 +216,7 @@ public class App {
 
         String keyVaultName = System.getenv("jqs_KeyVaultName");
 
-        if (keyVaultName == null || keyVaultName.isBlank()) {
+        if (keyVaultName == null || keyVaultName.isEmpty()) {
             System.out.println("Set the jqs_KeyVaultName environment variable");
             System.exit(-1);
         }

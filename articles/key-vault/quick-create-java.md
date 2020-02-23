@@ -39,7 +39,7 @@ Azure Key Vault helps safeguard cryptographic keys and secrets used by cloud app
 
 In a terminal, use the `mvn` command to create a new Java console app with the name `akv-java`.
 
-```bash
+```console
 mvn archetype:generate -DgroupId=com.keyvault.quickstart \
                        -DartifactId=akv-java \
                        -DarchetypeArtifactId=maven-archetype-quickstart \
@@ -74,7 +74,7 @@ The output from generating the project will look something like this:
 
 Change your directory to the newly created akv-java folder.
 
-```bash
+```console
 
 cd akv-java
 
@@ -91,7 +91,9 @@ cd akv-java
 
 ### Install the packages
 
-Open the *pom.xml* file in [Visual Studio Code](https://code.visualstudio.com/Download) (or your favorite text editor). Add the following dependency elements to the group of dependencies. Note that the slf4j-nop prevents warning messages and isn't part of the solution.
+Open the *pom.xml* file in [Visual Studio Code](https://code.visualstudio.com/Download) (or your favorite text editor). Add the following dependency elements to the group of dependencies.
+
+> Note that the slf4j-nop prevents warning messages and isn't part of the solution.
 
 ```xml
 
@@ -125,7 +127,7 @@ This quickstart includes basic commands to create an Azure key vault. More detai
 
 Windows Command Prompt Commands
 
-```powershell
+```console
 
 # your keyvault name must be unique
 set jqs_KeyVaultName=your-unique-keyvault-name
@@ -275,7 +277,7 @@ When no longer needed, you can use the Azure CLI to remove your key vault and th
 
 > Make sure there are no resources in the Resource Group you want to retain as they will be deleted!
 
-```bash
+```console
 
 ### Make sure there is nothing else in the resource group as it will be deleted
 az group delete -g $jqs_ResourceGroup

@@ -33,13 +33,71 @@ Azure Key Vault helps safeguard cryptographic keys and secrets used by cloud app
 
 > This quickstart assumes you are running [Azure CLI](/cli/azure/install-azure-cli?view=azure-cli-latest), [Apache Maven](https://maven.apache.org) and either bash or Windows command prompt in a terminal
 
-## Setting up
+## Create a resource group and key vault
 
-### Create a new Java console app
+This quickstart includes basic commands to create an Azure key vault. More detailed instructions are available at [Azure CLI quickstart](quick-create-cli.md), [Azure PowerShell quickstart](quick-create-powershell.md), or [Azure portal quickstart](quick-create-portal.md)
+
+> **Each key vault must have a unique name**
+>
+> Replace `your-unique-keyvault-name` with the name of your key vault in the following examples
+>
+> If you get an error on the az keyvault create command, change the environment variable value and try again
+
+### Windows
+
+```console
+
+# your keyvault name must be unique
+set jqs_KeyVaultName=your-unique-keyvault-name
+
+# you can change these if you want
+set jqs_ResourceGroup=JavaKeyVaultQuickStart
+set jqs_Location=EastUS
+
+# create the resource group
+az group create -n %jqs_ResourceGroup% -l %jqs_Location%
+
+# create the key vault
+az keyvault create -n %jqs_KeyVaultName% -g %jqs_ResourceGroup%
+
+# add a secret
+az keyvault secret set --vault-name %jqs_KeyVaultName% --name mySecret --value "Hello from Azure Key Vault!"
+
+# check the value
+az keyvault secret show --vault-name %jqs_KeyVaultName% --name mySecret
+
+```
+
+### Bash
+
+```bash
+
+# your keyvault name must be unique
+export jqs_KeyVaultName=your-unique-keyvault-name
+
+# you can change these if you want
+export jqs_ResourceGroup=JavaKeyVaultQuickStart
+export jqs_Location=EastUS
+
+# create the resource group
+az group create -n $jqs_ResourceGroup -l $jqs_Location
+
+# create the key vault
+az keyvault create -n $jqs_KeyVaultName -g $jqs_ResourceGroup
+
+# add a secret
+az keyvault secret set --vault-name $jqs_KeyVaultName --name mySecret --value "Hello from Azure Key Vault!"
+
+# check the value
+az keyvault secret show --vault-name $jqs_KeyVaultName --name mySecret
+
+```
+
+## Create a new Java console app
 
 In a terminal, use the `mvn` command to create a new Java console app with the name `akv-java`.
 
-Windows
+### Windows
 
 ```console
 
@@ -52,7 +110,7 @@ mvn archetype:generate -DgroupId=com.keyvault.quickstart ^
 
 ```
 
-Bash
+### Bash
 
 ```bash
 
@@ -97,7 +155,7 @@ cd akv-java
 
 ```
 
-### Files we care about
+## Files to change
 
 Assumes starting from the akv-java directory
 
@@ -106,7 +164,7 @@ Assumes starting from the akv-java directory
 - src/main/java/com/keyvault/quickstart/App.java
   - Java source code
 
-### Install the packages
+## Install the packages
 
 - Open `pom.xml` in [Visual Studio Code](https://code.visualstudio.com/Download) (or your favorite text editor)
 - Add the following dependency elements to the group of dependencies.
@@ -115,83 +173,23 @@ Assumes starting from the akv-java directory
 
 ```xml
 
-  <dependency>
-    <groupId>com.microsoft.azure</groupId>
-    <artifactId>azure-client-authentication</artifactId>
-    <version>1.7.2</version>
-  </dependency>
+    <dependency>
+      <groupId>com.microsoft.azure</groupId>
+      <artifactId>azure-client-authentication</artifactId>
+      <version>1.7.2</version>
+    </dependency>
 
-  <dependency>
-    <groupId>com.microsoft.azure</groupId>
-    <artifactId>azure-mgmt-keyvault</artifactId>
-    <version>1.31.0</version>
-  </dependency>
+    <dependency>
+      <groupId>com.microsoft.azure</groupId>
+      <artifactId>azure-mgmt-keyvault</artifactId>
+      <version>1.31.0</version>
+    </dependency>
 
-  <dependency>
-    <groupId>org.slf4j</groupId>
-    <artifactId>slf4j-nop</artifactId>
-    <version>1.7.30</version>
-  </dependency>
-
-```
-
-### Create a resource group and key vault
-
-This quickstart includes basic commands to create an Azure key vault. More detailed instructions are available at [Azure CLI quickstart](quick-create-cli.md), [Azure PowerShell quickstart](quick-create-powershell.md), or [Azure portal quickstart](quick-create-portal.md)
-
-> **Each key vault must have a unique name**
->
-> Replace `your-unique-keyvault-name` with the name of your key vault in the following examples
->
-> If you get an error on the az keyvault create command, change the environment variable value and try again
-
-Windows Command Prompt Commands
-
-```console
-
-# your keyvault name must be unique
-set jqs_KeyVaultName=your-unique-keyvault-name
-
-# you can change these if you want
-set jqs_ResourceGroup=JavaKeyVaultQuickStart
-set jqs_Location=EastUS
-
-# create the resource group
-az group create -n %jqs_ResourceGroup% -l %jqs_Location%
-
-# create the key vault
-az keyvault create -n %jqs_KeyVaultName% -g %jqs_ResourceGroup%
-
-# add a secret
-az keyvault secret set --vault-name %jqs_KeyVaultName% --name mySecret --value "Hello from Azure Key Vault!"
-
-# check the value
-az keyvault secret show --vault-name %jqs_KeyVaultName% --name mySecret
-
-```
-
-Bash Commands
-
-```bash
-
-# your keyvault name must be unique
-export jqs_KeyVaultName=your-unique-keyvault-name
-
-# you can change these if you want
-export jqs_ResourceGroup=JavaKeyVaultQuickStart
-export jqs_Location=EastUS
-
-# create the resource group
-az group create -n $jqs_ResourceGroup -l $jqs_Location
-
-# create the key vault
-az keyvault create -n $jqs_KeyVaultName -g $jqs_ResourceGroup
-
-# add a secret
-az keyvault secret set --vault-name $jqs_KeyVaultName --name mySecret --value "Hello from Azure Key Vault!"
-
-# check the value
-az keyvault secret show --vault-name $jqs_KeyVaultName --name mySecret
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-nop</artifactId>
+      <version>1.7.30</version>
+    </dependency>
 
 ```
 
@@ -401,7 +399,14 @@ When no longer needed, you can use the Azure CLI to remove your key vault and th
 
 ```console
 
-### Make sure there is nothing else in the resource group as it will be deleted
+## Make sure there are no resources in the Resource Group you want to retain as they will be deleted!
+
+
+## Windows
+az group delete -g %jqs_ResourceGroup%
+
+
+## bash
 az group delete -g $jqs_ResourceGroup
 
 ```

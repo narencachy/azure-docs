@@ -30,13 +30,13 @@ Azure Key Vault helps safeguard cryptographic keys and secrets used by cloud app
 - [Apache Maven](https://maven.apache.org)
 - [Azure CLI](/cli/azure/install-azure-cli?view=azure-cli-latest)
 
-This quickstart assumes you are running [Azure CLI](/cli/azure/install-azure-cli?view=azure-cli-latest), [Apache Maven](https://maven.apache.org) and bash in a Linux terminal window.
+This quickstart assumes you are running [Azure CLI](/cli/azure/install-azure-cli?view=azure-cli-latest), [Apache Maven](https://maven.apache.org) and either bash or Windows command prompt in a terminal.
 
 ## Setting up
 
 ### Create a new Java console app
 
-In a bash console, use the `mvn` command to create a new Java console app with the name `akv-java`.
+In a terminal, use the `mvn` command to create a new Java console app with the name `akv-java`.
 
 ```bash
 mvn archetype:generate -DgroupId=com.keyvault.quickstart \
@@ -61,7 +61,7 @@ The output from generating the project will look something like this:
 [INFO] Parameter: package, Value: com.keyvault.quickstart
 [INFO] Parameter: groupId, Value: com.keyvault.quickstart
 [INFO] Parameter: artifactId, Value: akv-java
-[INFO] Parameter: version, Value: 1.0-SNAPSHOT
+[INFO] Parameter: version, Value: 0.1.0
 [INFO] Project created from Archetype in dir: /home/user/quickstarts/akv-java
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
@@ -74,12 +74,14 @@ The output from generating the project will look something like this:
 Change your directory to the newly created akv-java folder.
 
 ```bash
+
 cd akv-java
+
 ```
 
 ### Install the packages
 
-Open the *pom.xml* file in your text editor. Add the following dependency elements to the group of dependencies.
+Open the *pom.xml* file in your text editor. Add the following dependency elements to the group of dependencies. Note that the slf4j-nop prevents warning messages and isn't part of the solution.
 
 ```xml
 
@@ -105,37 +107,61 @@ Open the *pom.xml* file in your text editor. Add the following dependency elemen
 
 ### Create a resource group and key vault
 
-This quickstart uses a pre-created Azure key vault. You can create a key vault by following the steps in the [Azure CLI quickstart](quick-create-cli.md), [Azure PowerShell quickstart](quick-create-powershell.md), or [Azure portal quickstart](quick-create-portal.md). Alternatively, you can run the Azure CLI commands below.
+This quickstart includes basic commands to create an Azure key vault. More detailed instructions are available at [Azure CLI quickstart](quick-create-cli.md), [Azure PowerShell quickstart](quick-create-powershell.md), or [Azure portal quickstart](quick-create-portal.md).
 
 > [!Important]
 > Each key vault must have a unique name. Replace `your-unique-keyvault-name` with the name of your key vault in the following examples.
+> If you get an error on the az keyvault create command, change the environment variable value and try again.
+
+Windows Command Prompt Commands
+
+```batch
+
+# your keyvault name must be unique
+set jqs_KeyVaultName=your-unique-keyvault-name
+
+# you can change these if you want
+set jqs_ResourceGroup=JavaKeyVaultQuickStart
+set jqs_Location=EastUS
+
+# create the resource group
+az group create -n %jqs_ResourceGroup% -l %jqs_Location%
+
+# create the key vault
+az keyvault create -n %jqs_KeyVaultName% -g %jqs_ResourceGroup%
+
+# add a secret
+az keyvault secret set --vault-name %jqs_KeyVaultName% --name mySecret --value "Hello from Azure Key Vault!"
+
+# check the value
+az keyvault secret show --vault-name %jqs_KeyVaultName% --name mySecret
+
+```
+
+Bash Commands
 
 ```bash
 
 # your keyvault name must be unique
-export jkv_Name=your-unique-keyvault-name
+export jqs_KeyVaultName=your-unique-keyvault-name
 
 # you can change these if you want
-export jkv_RG=JavaKeyVaultQuickStart
-export jkv_Location=EastUS
+export jqs_ResourceGroup=JavaKeyVaultQuickStart
+export jqs_Location=EastUS
 
 # create the resource group
-az group create -n $jkv_RG -l $jkv_Location
+az group create -n $jqs_ResourceGroup -l $jqs_Location
 
 # create the key vault
-az keyvault create -n $jkv_Name -g $jkv_RG
+az keyvault create -n $jqs_KeyVaultName -g $jqs_ResourceGroup
 
 # add a secret
-az keyvault secret set --vault-name $jkv_Name --name mySecret --value "Hello from Azure Key Vault!"
+az keyvault secret set --vault-name $jqs_KeyVaultName --name mySecret --value "Hello from Azure Key Vault!"
 
 # check the value
-az keyvault secret show --vault-name $jkv_Name --name mySecret
+az keyvault secret show --vault-name $jqs_KeyVaultName --name mySecret
 
 ```
-
-## Access Key Vault securely
-
-The most secure way to authenticate a cloud-based application is with a managed identity; see [Use an App Service managed identity to access Azure Key Vault](managed-identity.md) for details. This quickstart creates a desktop application and uses the Azure CLI cached credentials to access Azure Key Vault securely.
 
 ## Code examples
 
@@ -156,17 +182,33 @@ import com.microsoft.azure.keyvault.requests.*;
 
 ```
 
+### Access Key Vault securely
+
+The most secure way to authenticate a cloud-based application is with a managed identity; see [Use an App Service managed identity to access Azure Key Vault](managed-identity.md) for details. This quickstart supports using a Managed Identity or using the Azure CLI cached credentials to access Azure Key Vault securely.
+
+Once Managed Identity is setup and functioning, set the `jqs_AuthType` environment variable to `MSI` to use Managed Identity.
+
 ### Authenticate and create a client
 
-Authenticating to your key vault and creating a key vault client depends on the jkv_Name environment variable set in the [Create a resource group and key vault](#Create-a-resource-group-and-key-vault) step above. The name of your key vault is expanded to the key vault URL, in the format `https://<your-key-vault-name>.vault.azure.net`.
+Authenticating to your key vault and creating a key vault client depends on the `jqs_KeyVaultName` environment variable set in the [Create a resource group and key vault](#Create-a-resource-group-and-key-vault) step above. The name of your key vault is expanded to the key vault URL, in the format `https://<your-key-vault-name>.vault.azure.net`.
 
 ```java
 
-String keyVaultName = System.getenv("jkv_Name");
+// build the Key Vault URL from the env var
+String keyVaultName = System.getenv("jqs_KeyVaultName");
 String kvUri = "https://" + keyVaultName.trim() + ".vault.azure.net";
 
-AzureTokenCredentials cred = AzureCliCredentials.create();
-KeyVaultClient kvClient = new KeyVaultClient(cred);
+AzureTokenCredentials cred = null;
+
+// check for jqs_AuthType env var
+String isMsi = System.getenv("MSI");
+if (isMsi != null && isMsi.equals("MSI")) {
+    // use Managed Identity
+    cred = new MSICredentials(AzureEnvironment.AZURE);
+} else {
+    // use Azure CLI cache
+    cred = AzureCliCredentials.create();
+}
 
 ```
 
@@ -211,7 +253,7 @@ When no longer needed, you can use the Azure CLI to remove your key vault and th
 ```bash
 
 ### Make sure there is nothing else in the resource group as it will be deleted
-az group delete -g $jkv_RG
+az group delete -g $jqs_ResourceGroup
 
 ```
 
@@ -219,61 +261,7 @@ az group delete -g $jkv_RG
 
 ```java
 
-package com.keyvault.quickstart;
-
-import com.microsoft.azure.credentials.*;
-import com.microsoft.azure.keyvault.*;
-import com.microsoft.azure.keyvault.models.*;
-import com.microsoft.azure.keyvault.requests.*;
-
-public class App {
-  public static void main(String[] args) throws InterruptedException, IllegalArgumentException {
-
-    String keyVaultName = System.getenv("jkv_Name");
-
-    if (keyVaultName == null || keyVaultName.isBlank()) {
-      System.out.println("Set the jkv_Name environment variable");
-      System.exit(-1);
-    }
-
-    // build key vault URL
-    String kvUrl = "https://" + keyVaultName.trim() + ".vault.azure.net";
-    System.out.println(kvUrl);
-
-    try {
-      // get credentials from Azure CLI cache
-      AzureTokenCredentials cred = AzureCliCredentials.create();
-
-      // create Key Vault client
-      KeyVaultClient kvClient = new KeyVaultClient(cred);
-
-      // get mySecret
-      SecretBundle secret = kvClient.getSecret(kvUrl, "mySecret");
-      System.out.println(secret.value());
-
-      // create myNewSecret
-      SetSecretRequest req = new SetSecretRequest.Builder(kvUrl, "myNewSecret", "My new secret value").build();
-      kvClient.setSecret(req);
-
-      // get myNewSecret
-      SecretBundle newSecret = kvClient.getSecret(kvUrl, "myNewSecret");
-      System.out.println(newSecret.value());
-
-      // delete myNewSecret
-      kvClient.deleteSecret(kvUrl, "myNewSecret");
-
-      // myNewSecret should be null
-      newSecret = kvClient.getSecret(kvUrl, "myNewSecret");
-      System.out.println(newSecret == null);
-
-    } catch (Exception ex) {
-      System.out.println(ex.getMessage());
-    }
-
-    // keeps mvn exec:java from waiting for ctl-c
-    System.exit(0);
-  }
-}
+// TODO - insert code here
 
 ```
 

@@ -11,7 +11,7 @@ ms.topic: quickstart
 
 # Quickstart: Azure Key Vault client library for Java
 
-Get started with the Azure Key Vault client library for Java. Follow the steps below to install the package and try out example code for basic tasks.
+Get started with the Azure Key Vault client library for Java. Follow the steps below to install the packages and try out example code for basic tasks.
 
 Azure Key Vault helps safeguard cryptographic keys and secrets used by cloud applications and services. Use the Key Vault client library for Java to:
 
@@ -36,7 +36,7 @@ This quickstart assumes you are running [Azure CLI](/cli/azure/install-azure-cli
 
 ### Create a new Java console app
 
-In a console window, use the `mvn` command to create a new Java console app with the name `akv-java`.
+In a bash console, use the `mvn` command to create a new Java console app with the name `akv-java`.
 
 ```bash
 mvn archetype:generate -DgroupId=com.keyvault.quickstart \
@@ -84,8 +84,8 @@ Open the *pom.xml* file in your text editor. Add the following dependency elemen
 ```xml
 
   <dependency>
-      <groupId>com.microsoft.azure</groupId>
-      <artifactId>azure-client-authentication</artifactId>
+    <groupId>com.microsoft.azure</groupId>
+    <artifactId>azure-client-authentication</artifactId>
     <version>1.7.2</version>
   </dependency>
 
@@ -115,31 +115,33 @@ This quickstart uses a pre-created Azure key vault. You can create a key vault b
 # your keyvault name must be unique
 export jkv_Name=your-unique-keyvault-name
 
+# you can change these if you want
 export jkv_RG=JavaKeyVaultQuickStart
 export jkv_Location=EastUS
 
 # create the resource group
-az group create -n $jkv_RG -l jkv_Location
+az group create -n $jkv_RG -l $jkv_Location
 
 # create the key vault
-az keyvault create -n $jkv_Name -g jkv_RG
+az keyvault create -n $jkv_Name -g $jkv_RG
 
 # add a secret
 az keyvault secret set --vault-name $jkv_Name --name mySecret --value "Hello from Azure Key Vault!"
 
+# check the value
+az keyvault secret show --vault-name $jkv_Name --name mySecret
+
 ```
 
-### Access Key Vault Securely
+## Access Key Vault securely
 
-The most secure way to authenticate a cloud-based application is with a managed identity; see [Use an App Service managed identity to access Azure Key Vault](managed-identity.md) for details. For the sake of simplicity, this quickstart creates a desktop application and uses the Azure CLI cached credentials to access Azure Key Vault.
-
-## Object model
-
-The Azure Key Vault client library for Java allows you to manage keys and related assets such as certificates and secrets. The code samples below will show you how to read the secret we set earlier.
-
-The entire console app is [below](#sample-code).
+The most secure way to authenticate a cloud-based application is with a managed identity; see [Use an App Service managed identity to access Azure Key Vault](managed-identity.md) for details. This quickstart creates a desktop application and uses the Azure CLI cached credentials to access Azure Key Vault securely.
 
 ## Code examples
+
+The Azure Key Vault client library for Java allows you to manage keys and related assets such as certificates and secrets. The code samples below will show you how to read the secret we set earlier as well as create, read and delete a new secret.
+
+The entire console app is [below](#sample-code).
 
 ### Add directives
 
@@ -147,10 +149,10 @@ Add the following directives to the top of your code:
 
 ```java
 
-import java.io.IOException;
 import com.microsoft.azure.credentials.*;
 import com.microsoft.azure.keyvault.*;
 import com.microsoft.azure.keyvault.models.*;
+import com.microsoft.azure.keyvault.requests.*;
 
 ```
 
@@ -170,7 +172,7 @@ KeyVaultClient kvClient = new KeyVaultClient(cred);
 
 ### Retrieve a secret
 
-You can get `mySecret` set during setup with the `kvClient.getSecret` method.
+You can get `mySecret` set during setup with the `kvClient.getSecret` method. You can access the value of the secret with `secret.value()`.
 
 ```java
 
@@ -180,16 +182,35 @@ System.out.println(secret.value());
 
  ```
 
-You can access the value of the secret with `secret.value()`.
+### Create a secret
+
+Create (set) myNewSecret
+
+```java
+
+SetSecretRequest req = new SetSecretRequest.Builder(kvUrl, "myNewSecret", "My new secret value").build();
+kvClient.setSecret(req);
+
+
+```
+
+### Delete a secret
+
+Delete myNewSecret
+
+```java
+
+kvClient.deleteSecret(kvUrl, "myNewSecret");
+
+```
 
 ## Clean up resources
 
 When no longer needed, you can use the Azure CLI to remove your key vault and the corresponding resource group.
 
-### Make sure there is nothing else in the resource group as it will be deleted
-
 ```bash
 
+### Make sure there is nothing else in the resource group as it will be deleted
 az group delete -g $jkv_RG
 
 ```
@@ -200,38 +221,58 @@ az group delete -g $jkv_RG
 
 package com.keyvault.quickstart;
 
-import java.io.IOException;
 import com.microsoft.azure.credentials.*;
 import com.microsoft.azure.keyvault.*;
 import com.microsoft.azure.keyvault.models.*;
+import com.microsoft.azure.keyvault.requests.*;
 
 public class App {
+  public static void main(String[] args) throws InterruptedException, IllegalArgumentException {
 
-    public static void main(String[] args) throws InterruptedException, IllegalArgumentException {
+    String keyVaultName = System.getenv("jkv_Name");
 
-        String keyVaultName = System.getenv("jkv_Name");
-
-        if (keyVaultName == null || keyVaultName.isBlank()) {
-            System.out.println("Set the jkv_Name environment variable");
-            System.exit(-1);
-        }
-
-        String kvUri = "https://" + keyVaultName.trim() + ".vault.azure.net";
-
-        try {
-            // uses the Azure CLI credentials
-            AzureTokenCredentials cred = AzureCliCredentials.create();
-
-            KeyVaultClient kvClient = new KeyVaultClient(cred);
-
-            SecretBundle secret = kvClient.getSecret(kvUri, "mySecret");
-
-            System.out.println(secret.value());
-
-        } catch (IOException ex) {
-            System.out.println(ex.getMessage());
-        }
+    if (keyVaultName == null || keyVaultName.isBlank()) {
+      System.out.println("Set the jkv_Name environment variable");
+      System.exit(-1);
     }
+
+    // build key vault URL
+    String kvUrl = "https://" + keyVaultName.trim() + ".vault.azure.net";
+    System.out.println(kvUrl);
+
+    try {
+      // get credentials from Azure CLI cache
+      AzureTokenCredentials cred = AzureCliCredentials.create();
+
+      // create Key Vault client
+      KeyVaultClient kvClient = new KeyVaultClient(cred);
+
+      // get mySecret
+      SecretBundle secret = kvClient.getSecret(kvUrl, "mySecret");
+      System.out.println(secret.value());
+
+      // create myNewSecret
+      SetSecretRequest req = new SetSecretRequest.Builder(kvUrl, "myNewSecret", "My new secret value").build();
+      kvClient.setSecret(req);
+
+      // get myNewSecret
+      SecretBundle newSecret = kvClient.getSecret(kvUrl, "myNewSecret");
+      System.out.println(newSecret.value());
+
+      // delete myNewSecret
+      kvClient.deleteSecret(kvUrl, "myNewSecret");
+
+      // myNewSecret should be null
+      newSecret = kvClient.getSecret(kvUrl, "myNewSecret");
+      System.out.println(newSecret == null);
+
+    } catch (Exception ex) {
+      System.out.println(ex.getMessage());
+    }
+
+    // keeps mvn exec:java from waiting for ctl-c
+    System.exit(0);
+  }
 }
 
 ```

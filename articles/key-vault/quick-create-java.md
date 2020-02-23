@@ -82,17 +82,25 @@ cd akv-java
 Open the *pom.xml* file in your text editor. Add the following dependency elements to the group of dependencies.
 
 ```xml
-    <dependency>
-        <groupId>com.microsoft.azure</groupId>
-        <artifactId>azure-client-authentication</artifactId>
-      <version>1.7.2</version>
-    </dependency>
 
-    <dependency>
+  <dependency>
       <groupId>com.microsoft.azure</groupId>
-      <artifactId>azure-mgmt-keyvault</artifactId>
-      <version>1.31.0</version>
-    </dependency>
+      <artifactId>azure-client-authentication</artifactId>
+    <version>1.7.2</version>
+  </dependency>
+
+  <dependency>
+    <groupId>com.microsoft.azure</groupId>
+    <artifactId>azure-mgmt-keyvault</artifactId>
+    <version>1.31.0</version>
+  </dependency>
+
+  <dependency>
+    <groupId>org.slf4j</groupId>
+    <artifactId>slf4j-nop</artifactId>
+    <version>1.7.30</version>
+  </dependency>
+
 ```
 
 ### Create a resource group and key vault

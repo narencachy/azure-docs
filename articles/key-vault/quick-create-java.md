@@ -29,8 +29,9 @@ Azure Key Vault helps safeguard cryptographic keys and secrets used by cloud app
 - [Java Development Kit (JDK)](/java/azure/jdk/?view=azure-java-stable) version 8 or above
 - [Apache Maven](https://maven.apache.org)
 - [Azure CLI](/cli/azure/install-azure-cli?view=azure-cli-latest)
+- [Visual Studio Code](https://code.visualstudio.com/Download) (optional but recommended)
 
-This quickstart assumes you are running [Azure CLI](/cli/azure/install-azure-cli?view=azure-cli-latest), [Apache Maven](https://maven.apache.org) and either bash or Windows command prompt in a terminal.
+> This quickstart assumes you are running [Azure CLI](/cli/azure/install-azure-cli?view=azure-cli-latest), [Apache Maven](https://maven.apache.org) and either bash or Windows command prompt in a terminal.
 
 ## Setting up
 
@@ -79,9 +80,18 @@ cd akv-java
 
 ```
 
+### Files we care about
+
+> Assumes starting from the akv-java directory
+
+- pom.xml
+  - Maven project file
+- src/main/java/com/keyvault/quickstart/App.java
+  - Java source code
+
 ### Install the packages
 
-Open the *pom.xml* file in your text editor. Add the following dependency elements to the group of dependencies. Note that the slf4j-nop prevents warning messages and isn't part of the solution.
+Open the *pom.xml* file in [Visual Studio Code](https://code.visualstudio.com/Download) (or your favorite text editor). Add the following dependency elements to the group of dependencies. Note that the slf4j-nop prevents warning messages and isn't part of the solution.
 
 ```xml
 
@@ -184,7 +194,9 @@ import com.microsoft.azure.keyvault.requests.*;
 
 ### Access Key Vault securely
 
-The most secure way to authenticate a cloud-based application is with a managed identity; see [Use an App Service managed identity to access Azure Key Vault](managed-identity.md) for details. This quickstart supports using a Managed Identity or using the Azure CLI cached credentials to access Azure Key Vault securely.
+The most secure way to authenticate a cloud-based application is with a managed identity; see [Use an App Service managed identity to access Azure Key Vault](managed-identity.md) for details.
+
+> This quickstart supports using a Managed Identity or using the Azure CLI cached credentials to access Azure Key Vault securely.
 
 Once Managed Identity is setup and functioning, set the `jqs_AuthType` environment variable to `MSI` to use Managed Identity.
 
@@ -214,7 +226,7 @@ if (isMsi != null && isMsi.equals("MSI")) {
 
 ### Retrieve a secret
 
-You can get `mySecret` set during setup with the `kvClient.getSecret` method. You can access the value of the secret with `secret.value()`.
+You can get `mySecret` set during setup with the `kvClient.getSecret` method. You can access the value of the secret with `secret.value()`
 
 ```java
 
@@ -226,7 +238,7 @@ System.out.println(secret.value());
 
 ### Create a secret
 
-Create (set) myNewSecret
+You can create (set) `myNewSecret` using the `kvClient.setSecret` method after building the `SetSecretRequest`
 
 ```java
 
@@ -238,7 +250,7 @@ kvClient.setSecret(req);
 
 ### Delete a secret
 
-Delete myNewSecret
+You can delete `myNewSecret` using the `kvClient.deleteSecret` method
 
 ```java
 
@@ -246,9 +258,23 @@ kvClient.deleteSecret(kvUrl, "myNewSecret");
 
 ```
 
-## Clean up resources
+### Verify myNewSecret was deleted
+
+You can verify that `myNewSecret` was deleted using `kvClient.getSecret` and checking `secret == null`
+
+```java
+
+// myNewSecret should be null
+secret = kvClient.getSecret(kvUrl, "myNewSecret");
+System.out.println(secret == null);
+
+```
+
+## Delete Key Vault and Resource Group
 
 When no longer needed, you can use the Azure CLI to remove your key vault and the corresponding resource group.
+
+> Make sure there are no resources in the Resource Group you want to retain as they will be deleted!
 
 ```bash
 

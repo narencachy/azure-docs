@@ -97,7 +97,7 @@ az keyvault secret show --vault-name $jqs_KeyVaultName --name mySecret
 
 In a terminal, use the `mvn` command to create a new Java console app with the name `akv-java`.
 
-### Windows
+### Windows Command
 
 ```console
 
@@ -110,7 +110,7 @@ mvn archetype:generate -DgroupId=com.keyvault.quickstart ^
 
 ```
 
-### Bash
+### Bash Command
 
 ```bash
 
